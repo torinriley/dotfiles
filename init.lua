@@ -25,8 +25,10 @@ require("lazy").setup({
       "navarasu/onedark.nvim",
       priority = 1001,
       config = function()
-         vim.o.background = "dark"
-         vim.cmd.colorscheme("onedark")
+         if vim.env.TERM_PROGRAM ~= "ghostty" then
+            vim.o.background = "dark"
+            vim.cmd.colorscheme("onedark")
+         end
       end
    },
    {
@@ -44,8 +46,13 @@ require("lazy").setup({
          require("alpha").setup(dashboard.config)
       end
    },
-   { "nvim-lualine/lualine.nvim", dependencies = { "nvim-tree/nvim-web-devicons" }, config = function() require(
-      "lualine").setup({ options = { theme = "onedark" } }) end },
+   {
+      "nvim-lualine/lualine.nvim",
+      dependencies = { "nvim-tree/nvim-web-devicons" },
+      config = function()
+         require("lualine").setup({ options = { theme = vim.env.TERM_PROGRAM ~= "ghostty" and "onedark" or "auto" } })
+      end
+   },
    {
       "stevearc/oil.nvim",
       dependencies = { "nvim-tree/nvim-web-devicons" },
@@ -117,9 +124,9 @@ require("lazy").setup({
          })
       end
    },
-   { "windwp/nvim-autopairs",     event = "InsertEnter",                        config = true },
-   { "lewis6991/gitsigns.nvim",   config = true },
-   { "numToStr/Comment.nvim",     config = true },
+   { "windwp/nvim-autopairs",   event = "InsertEnter", config = true },
+   { "lewis6991/gitsigns.nvim", config = true },
+   { "numToStr/Comment.nvim",   config = true },
    {
       "akinsho/toggleterm.nvim",
       version = "*",
@@ -173,3 +180,16 @@ vim.keymap.set("n", "<C-h>", "<C-w>h")
 vim.keymap.set("n", "<C-j>", "<C-w>j")
 vim.keymap.set("n", "<C-k>", "<C-w>k")
 vim.keymap.set("n", "<C-l>", "<C-w>l")
+
+-- TRANSPARENCY (ghostty only)
+if vim.env.TERM_PROGRAM == "ghostty" then
+   vim.api.nvim_create_autocmd("ColorScheme", {
+      pattern = "*",
+      callback = function()
+         vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
+         vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
+      end,
+   })
+   vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
+   vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
+end
